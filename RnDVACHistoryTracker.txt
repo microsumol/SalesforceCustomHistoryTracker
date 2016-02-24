@@ -1,0 +1,119 @@
+trigger RnDVACHistoryTracker on RD_VAC__c (after update) {
+    
+ //code to run from class   
+ /*    if(!trigger.isUpdate)
+        return;
+    TrgFieldTrackingUtility.TrackHistory(trigger.new,trigger.oldmap);*/ 
+
+
+//All code has been moved to class, for re-usablity purpose. 
+ 
+if(trigger.isUpdate)
+{
+    final List<Schema.FieldSetMember> trackedFields = 
+        SObjectType.RD_VAC__c.FieldSets.HistoryTracking.getFields();
+
+    if (trackedFields.isEmpty()) return;
+
+    final List<R_D_VAC_History_Tracker__c> fieldChanges = 
+        new List<R_D_VAC_History_Tracker__c>();
+
+    if(!trigger.isUpdate)
+        return;
+        
+    List<String> lstObjectToInsertSearialized = new List<String>();
+    for (RD_VAC__c newRD_VAC : trigger.new) {
+
+        final RD_VAC__c oldRD_VAC = trigger.oldmap.get(newRD_VAC.Id);
+
+        for (Schema.FieldSetMember fsm : trackedFields) {
+
+            String fieldName  = fsm.getFieldPath();
+            String fieldLabel = fsm.getLabel();
+
+            if (newRD_VAC.get(fieldName) == oldRD_VAC.get(fieldName))
+                continue;
+
+            String oldValue = String.valueOf(oldRD_VAC.get(fieldName));
+            String newValue = String.valueOf(newRD_VAC.get(fieldName));
+
+            if (oldValue != null && oldValue.length()>255) 
+                oldValue = oldValue.substring(0,255);
+
+            if (newValue != null && newValue.length()>255) 
+                newValue = newValue.substring(0,255); 
+
+            final R_D_VAC_History_Tracker__c objectHistory = 
+                new R_D_VAC_History_Tracker__c();
+
+            TrgFieldTrackingUtility.FieldTrackingHelper objToInsert = new TrgFieldTrackingUtility.FieldTrackingHelper(fieldLabel,fieldName,newRD_VAC.Id,UserInfo.getUserId(),oldValue,newValue);
+            
+            
+            lstObjectToInsertSearialized.add(JSON.serialize(objToInsert));
+            system.debug('Paulo**: reocrd has been added'); 
+           
+        }
+    }
+
+    if (!lstObjectToInsertSearialized.isEmpty()) {
+       system.debug('Paulo**:Future call is about to start'); 
+      TrgFieldTrackingUtility.InitiateDML(lstObjectToInsertSearialized);
+    }
+}
+
+    
+    //Code Backup 
+    /*
+    final List<Schema.FieldSetMember> trackedFields = 
+        SObjectType.RD_VAC__c.FieldSets.HistoryTracking.getFields();
+
+    if (trackedFields.isEmpty()) return;
+
+    final List<R_D_VAC_History_Tracker__c> fieldChanges = 
+        new List<R_D_VAC_History_Tracker__c>();
+
+    if(!trigger.isUpdate)
+        return;
+
+    for (RD_VAC__c newRD_VAC : trigger.new) {
+
+        final RD_VAC__c oldRD_VAC = trigger.oldmap.get(newRD_VAC.Id);
+
+        for (Schema.FieldSetMember fsm : trackedFields) {
+
+            String fieldName  = fsm.getFieldPath();
+            String fieldLabel = fsm.getLabel();
+
+            if (newRD_VAC.get(fieldName) == oldRD_VAC.get(fieldName))
+                continue;
+
+            String oldValue = String.valueOf(oldRD_VAC.get(fieldName));
+            String newValue = String.valueOf(newRD_VAC.get(fieldName));
+
+            if (oldValue != null && oldValue.length()>255) 
+                oldValue = oldValue.substring(0,255);
+
+            if (newValue != null && newValue.length()>255) 
+                newValue = newValue.substring(0,255); 
+
+            final R_D_VAC_History_Tracker__c objectHistory = 
+                new R_D_VAC_History_Tracker__c();
+
+            objectHistory.name         = fieldLabel;
+            objectHistory.apiName__c   = fieldName;
+            objectHistory.R_D_VAC__c     = newRD_VAC.Id;
+            objectHistory.ChangedBy__c = UserInfo.getUserId();
+            objectHistory.OldValue__c  = oldValue;
+            objectHistory.NewValue__c  = newValue;
+
+            fieldChanges.add(objectHistory);
+        }
+    }
+
+    if (!fieldChanges.isEmpty()) {
+        insert fieldChanges;
+    }
+    */ 
+
+
+}
