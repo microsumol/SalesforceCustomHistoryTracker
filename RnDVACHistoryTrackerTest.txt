@@ -1,0 +1,26 @@
+/*
+Author : Paulo Correia
+Date : 7th Feb 2016
+Description : Test Class for RnDVACHistoryTracker trigger and TrgFieldTrackingUtility
+*/
+@isTest
+public class RnDVACHistoryTrackerTest
+{
+
+    static TestMethod void TestFieldTrackingRecords()
+    {
+        //Creating Test data
+        RD_VAC__c objToInsert = new RD_VAC__c (); 
+        objToInsert.ProjectDescription__c='Hello'; 
+        insert objToInsert;
+        Test.StartTest(); 
+       
+       
+        RD_VAC__c lstrecord = [select Id from RD_VAC__c limit 1];
+        lstrecord.ProjectDescription__c='test changed'+ DateTime.Now();
+        update lstrecord; 
+        Test.StopTest(); 
+        
+        
+    }
+}

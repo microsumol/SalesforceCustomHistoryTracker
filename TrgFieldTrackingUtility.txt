@@ -1,0 +1,58 @@
+/*
+Author : Paulo Correia
+Created Date : 7th Feb 2016
+Description : Contains Helper class for searlization and deserialization of object, for passing into @future method.
+*/
+public class TrgFieldTrackingUtility
+{
+  @future(CallOut=false)  
+  Public static void InitiateDML(List<string> lstToInsert) 
+  {
+      //insert lstToinsert; 
+      List<R_D_VAC_History_Tracker__c> lstTracker = new List<R_D_VAC_History_Tracker__c>(); 
+      for(String strObj : lstToInsert) 
+      {
+          //Desearialize object 
+           FieldTrackingHelper objHelper ; 
+           objHelper = (FieldTrackingHelper) JSON.deserialize(strObj , FieldTrackingHelper.class);
+           
+           //Creating Object of Tracking history 
+           R_D_VAC_History_Tracker__c objTracker = new R_D_VAC_History_Tracker__c(); 
+            objTracker.name         = objHelper.fieldLable;
+            objTracker.apiName__c   = objHelper.fieldName;
+            objTracker.R_D_VAC__c     = objHelper .RelatedToID;
+            objTracker.ChangedBy__c = objHelper.ChangedBy; 
+            objTracker.OldValue__c  = objHelper.OldValue;
+            objTracker.NewValue__c  = objHelper.NewValue; 
+           lstTracker.add(objTracker); 
+           
+
+      }
+      if(!lstTracker.isEmpty())
+      {
+          insert lstTracker;
+      }
+  }
+ public class FieldTrackingHelper {
+
+    public String fieldLable {set; get;}
+    public String fieldName {set; get;}
+    public String RelatedToID {set; get;}
+    public String ChangedBy {set; get;}
+    public String NewValue {set; get;}   
+    public String OldValue {set; get;}   
+   
+
+    
+    public FieldTrackingHelper (String strFieldLable, String strFieldName, String strRelatedToId, String strChangedBy,String strNewValue,String strOldValue)
+    {
+        fieldLable = strFieldLable; 
+        FieldName = strFieldName; 
+        RelatedToID = strRelatedToId; 
+        ChangedBy = strChangedBy; 
+        NewValue = strNewValue; 
+        OldValue = strOldValue; 
+    }
+}
+  
+}
